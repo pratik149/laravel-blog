@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Comment;
+use App\Blog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
@@ -26,7 +28,7 @@ class CommentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Blog $blog)
     {
 
     }
@@ -39,10 +41,13 @@ class CommentController extends Controller
      */
     public function store(Request $request)
     {
-        $comment = new Comment;
 
-        $comment->c_body = $request->c_body;
-        $comment->save();
+        $comment = new Comment(array('c_body' => $request->new_comment));
+        $blog = Blog::find($request->blog_id);
+        $comment = $blog->comments()->save($comment);
+
+        $blogs = Blog::with('comments')->get();
+        return view('blog.blogs',['blogs' => $blogs]);
     }
 
     /**
@@ -87,6 +92,9 @@ class CommentController extends Controller
      */
     public function destroy(Comment $comment)
     {
-        //
+        $comment->delete();
+
+        $blogs = Blog::with('comments')->get();
+        return view('blog.blogs',['blogs' => $blogs]);
     }
 }

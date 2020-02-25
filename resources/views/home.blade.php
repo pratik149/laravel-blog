@@ -16,6 +16,8 @@
 
                     You are logged in!
                 </div>
+
+                <!-- <a type="button" class="mt-5 btn btn-lg btn-dark " href="{{route('blogs.index')}}">Your feed</a> -->
             </div>
         </div>
     </div>

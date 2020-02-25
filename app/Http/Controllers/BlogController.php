@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Blog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Auth;
 
 class BlogController extends Controller
 {
@@ -14,9 +16,9 @@ class BlogController extends Controller
      */
     public function index()
     {
-        $blogs = Blog::all();
-
-        return $blogs;
+        $blogs = Blog::with('comments')->get();
+        // return $blogs;
+        return view('blog.blogs', ['blogs' => $blogs]);
     }
 
 
@@ -27,7 +29,7 @@ class BlogController extends Controller
      */
     public function create()
     {
-        return view('blog/create_blog');
+        return view('blog.create_blog');
     }
 
 
@@ -40,12 +42,16 @@ class BlogController extends Controller
     public function store(Request $request)
     {
         // Validate the request...
-
         $blog = new Blog;
 
+        $blog->user_id = Auth::id();
         $blog->title = $request->title;
         $blog->body = $request->body;
         $blog->save();
+        
+        return redirect()->route('blogs.edit', [
+            'id' => $blog->id
+        ]);
     }
 
 
@@ -57,7 +63,7 @@ class BlogController extends Controller
      */
     public function show(Blog $blog)
     {
-        //
+        return $blog;
     }
 
 
@@ -69,7 +75,7 @@ class BlogController extends Controller
      */
     public function edit(Blog $blog)
     {
-        //
+        return view('blog.edit_blog', ['blog' => $blog]);
     }
 
 
@@ -82,11 +88,12 @@ class BlogController extends Controller
      */
     public function update(Request $request, Blog $blog)
     {
-        $blog = Blog::find($blog);
-
-        $blog->title = 'New Flight Name';
-        $blog->body = "This is an updated blog paragraph";
+        $blog->user_id = Auth::id();
+        $blog->title = $request->title;
+        $blog->body = $request->body;
         $blog->save();
+
+        return redirect()->route('blogs.edit', ['id' => $blog->id]);
     }
 
 
@@ -98,8 +105,7 @@ class BlogController extends Controller
      */
     public function destroy(Blog $blog)
     {
-        $blog = Blog::find(1);
-
+        // $blog = Blog::find(1);
         $blog->delete();
     }
 }
