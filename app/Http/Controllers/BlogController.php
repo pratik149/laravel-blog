@@ -6,6 +6,8 @@ use App\Blog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Auth;
+use App\Rules\Uppercase;
+use Illuminate\Support\Facades\Validator;
 
 class BlogController extends Controller
 {
@@ -42,6 +44,32 @@ class BlogController extends Controller
     public function store(Request $request)
     {
         // Validate the request...
+        // $validatedData = $request->validate([
+        //     'title' => ['required','unique:blogs,title','max:255', new Uppercase],
+        //     'body' => 'required',
+        // ]);
+
+        $validator = Validator::make($request->all(), [
+            'title' => [
+                'required',
+                'max:255',
+                'unique:blogs,title',
+                // new Uppercase,
+                function ($attribute, $value, $fail) {
+                    if (stripos($value, 'fuck') !== false) {
+                        $fail('Your post '.$attribute.' contains F word. Avoid it or else we will block your account.');
+                    }
+                },
+            ],
+            'body' => ['required','min:255']
+        ]);
+
+        if ($validator->fails()) {
+            return redirect('blogs/create')
+                        ->withErrors($validator)
+                        ->withInput();
+        }
+
         $blog = new Blog;
 
         $blog->user_id = Auth::id();
@@ -88,6 +116,27 @@ class BlogController extends Controller
      */
     public function update(Request $request, Blog $blog)
     {
+
+        $validator = Validator::make($request->all(), [
+            'title' => [
+                'required',
+                'max:255',
+                // new Uppercase,
+                function ($attribute, $value, $fail) {
+                    if (stripos($value, 'fuck') !== false) {
+                        $fail('Your post '.$attribute.' contains F word. Avoid it or else we will block your account.');
+                    }
+                },
+            ],
+            'body' => ['required','min:255']
+        ]);
+
+        if ($validator->fails()) {
+            return Redirect::route('blogs.edit',['id'=>$blog->id])
+                        ->withErrors($validator)
+                        ->withInput();
+        }
+
         $blog->user_id = Auth::id();
         $blog->title = $request->title;
         $blog->body = $request->body;

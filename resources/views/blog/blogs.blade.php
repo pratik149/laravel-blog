@@ -23,6 +23,7 @@
                 <div class="card-header">
                     <a href="{{ route('blogs.edit', ['blog'=>$blog->id]) }}" class="btn btn-outline-dark ">Edit</a>
                     {{ $blog->title }}
+                    <a href="{{ route('blogs.destroy', ['blog'=>$blog->id]) }}" class="btn btn-outline-danger ">X</a>
 
                 </div>
                 <div class="card-body">

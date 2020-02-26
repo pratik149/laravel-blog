@@ -3,20 +3,22 @@
 @section('content')
 
 
-@if ( Session::has('flash_message') )
- 
-  <div class="alert {{ Session::get('flash_type') }}">
-      <h3>{{ Session::get('flash_message') }}</h3>
-  </div>
-  
-@endif
- 
-@yield('content')
 
 <div class="container">
     <div class="row justify-content-center"></div>
         <div class="col-12">
             <h1 class="display-4">Edit Blog</h1>
+
+
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
             <form action="{{ route('blogs.update',['blog' => $blog->id]) }}" method="POST">
                     @csrf
                     @method('PUT')
